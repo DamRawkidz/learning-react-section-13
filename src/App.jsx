@@ -9,7 +9,7 @@ function App() {
   const [chosenCount, setChosenCount] = useState(0);
 
   function handleSetCount(newCount) {
-    chosenCount(newCount)
+    setChosenCount(newCount)
   }
 
   return (
@@ -18,6 +18,7 @@ function App() {
       <main>
         <ConfigureCounter onSet={handleSetCount} />
         <Counter initialCount={chosenCount} />
+        <Counter initialCount={0} />
       </main>
     </>
   );

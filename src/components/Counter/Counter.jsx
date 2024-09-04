@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 import IconButton from '../UI/IconButton.jsx';
 import MinusIcon from '../UI/Icons/MinusIcon.jsx';
@@ -6,6 +6,9 @@ import PlusIcon from '../UI/Icons/PlusIcon.jsx';
 import CounterOutput from './CounterOutput.jsx';
 import { log } from '../../log.js';
 import { memo } from 'react';
+import { useCallback } from 'react';
+
+import CounterHistory from './CounterHistory.jsx'
 
 function isPrime(number) {
   log(
@@ -30,17 +33,45 @@ function isPrime(number) {
 
 const Counter = memo(function Counter({ initialCount }) {
   log('<Counter /> rendered', 1);
-  const initialCountIsPrime = isPrime(initialCount);
+  const initialCountIsPrime = useMemo(() => isPrime(initialCount), [initialCount]);
 
-  const [counter, setCounter] = useState(initialCount);
+  useEffect(() => {
+    setCounterChange([
+      {
+        value: initialCount, id: Math.random() * 1000
+      }
+    ])
+  }, [initialCount])
 
-  function handleDecrement() {
-    setCounter((prevCounter) => prevCounter - 1);
-  }
+  // const [counter, setCounter] = useState(initialCount);
+  const [counterChange, setCounterChange] = useState([
+    {
+      value: initialCount, id: Math.random() * 1000
+    }
+  ])
 
-  function handleIncrement() {
-    setCounter((prevCounter) => prevCounter + 1);
-  }
+  const handleDecrement = useCallback(function handleDecrement() {
+    // setCounter((prevCounter) => );
+    setCounterChange((prevCounterChange) => [
+      { value: -1, id: Math.random() * 1000 },
+      ...prevCounterChange,
+    ])
+  }, [])
+
+  const currentCount = counterChange.reduce(
+    (prevCounter, counterChange) => prevCounter + counterChange.value,
+    0
+  )
+
+
+  const handleIncrement = useCallback(function handleIncrement() {
+    // setCounter((prevCounter) => prevCounter + 1)
+    ;
+    setCounterChange((prevCounterChange) => [
+      { value: -1, id: Math.random() * 1000 },
+      ...prevCounterChange,
+    ])
+  }, [])
 
   return (
     <section className="counter">
@@ -52,11 +83,12 @@ const Counter = memo(function Counter({ initialCount }) {
         <IconButton icon={MinusIcon} onClick={handleDecrement}>
           Decrement
         </IconButton>
-        <CounterOutput value={counter} />
+        <CounterOutput value={currentCount} />
         <IconButton icon={PlusIcon} onClick={handleIncrement}>
           Increment
         </IconButton>
       </p>
+      <CounterHistory history={counterChange} />
     </section>
   );
 })
